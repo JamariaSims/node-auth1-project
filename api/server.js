@@ -1,7 +1,7 @@
 const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
-
+const session = require("express-session");
 /**
   Do what needs to be done to support sessions with the `express-session` package!
   To respect users' privacy, do NOT send them a cookie unless they log in.
@@ -16,7 +16,19 @@ const cors = require("cors");
  */
 
 const server = express();
-
+server.use(
+  session({
+    name: "chocolatechip",
+    secret: "no hands in my cookie jar!",
+    cookie: {
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+      secure: false,
+    },
+    httpOnly: true,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 server.use(helmet());
 server.use(express.json());
 server.use(cors());
@@ -25,7 +37,8 @@ server.get("/", (req, res) => {
   res.json({ api: "up" });
 });
 
-server.use((err, req, res, next) => { // eslint-disable-line
+server.use((err, req, res, next) => {
+  // eslint-disable-line
   res.status(err.status || 500).json({
     message: err.message,
     stack: err.stack,
