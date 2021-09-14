@@ -5,7 +5,21 @@ const Auth = require("./auth-middleware");
 const User = require("../users/users-model");
 const bcrypt = require("bcryptjs");
 
-Router.post("/register",Auth.checkUsernameFree, async (req, res, next) => {
+Router.post("/login", async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
+    const existingUser = await User.findBy({ username });
+    if (existingUser && bcrypt.compareSync(password, existingUser.password)) {
+      req.session.user = existingUser;
+      res.json(`Welcome ${username}!`);
+    } else {
+      next({ status: 401, message: "Invalid credentials" });
+    }
+  } catch (err) {
+    next();
+  }
+});
+Router.post("/register", Auth.checkUsernameFree, async (req, res, next) => {
   try {
     const { username, password } = req.body;
     const hash = bcrypt.hashSync(password, 12);
@@ -16,7 +30,19 @@ Router.post("/register",Auth.checkUsernameFree, async (req, res, next) => {
     next();
   }
 });
-
+Router.get("/logout", (req, res) => {
+  if (req.session.user) {
+    req.session.destroy((err) => {
+      if (err) {
+        res.json({ message: "error you stuck" });
+      } else {
+        res.json({ message: "logged out" });
+      }
+    });
+  } else {
+    res.json({ message: "no session" });
+  }
+});
 module.exports = Router;
 /**
   1 [POST] /api/auth/register { "username": "sue", "password": "1234" }

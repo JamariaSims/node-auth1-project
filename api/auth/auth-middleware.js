@@ -8,11 +8,10 @@ const Users = require("../users/users-model");
   }
 */
 function restricted(req, res, next) {
-  const user = req.body;
-  if (user.session) {
-    next();
-  } else {
+  if (!req.session) {
     res.status(401).json({ message: "You shall not pass!" });
+  } else {
+    next();
   }
 }
 
@@ -63,4 +62,5 @@ module.exports = {
   checkUsernameFree,
   checkUsernameExists,
   checkPasswordLength,
+  restricted,
 };
