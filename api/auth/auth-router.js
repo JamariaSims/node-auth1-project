@@ -11,18 +11,18 @@ Router.post("/login", async (req, res, next) => {
     const existingUser = await User.findBy({ username });
     if (existingUser && bcrypt.compareSync(password, existingUser.password)) {
       req.session.user = existingUser;
-      res.json(`Welcome ${username}!`);
+      res.json({ message: `Welcome ${username}` });
     } else {
       next({ status: 401, message: "Invalid credentials" });
     }
   } catch (err) {
-    next();
+    next(err);
   }
 });
 Router.post(
   "/register",
-  Auth.checkPasswordLength,
   Auth.checkUsernameFree,
+  Auth.checkPasswordLength,
   async (req, res, next) => {
     try {
       const { username, password } = req.body;
@@ -31,7 +31,7 @@ Router.post(
       const user = await User.add(newUser);
       res.status(201).json(user);
     } catch (err) {
-      next();
+      next(err);
     }
   }
 );

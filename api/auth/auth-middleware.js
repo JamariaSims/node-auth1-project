@@ -56,7 +56,10 @@ function checkUsernameExists() {}
   }
 */
 function checkPasswordLength(req, res, next) {
-  if (!req.body || req.body.password <= 3) {
+  const { body } = req;
+  const passwordLength = body.password.length;
+
+  if (!body || passwordLength <= 3) {
     next({
       status: 422,
       message: "Password must be longer than 3 chars",
