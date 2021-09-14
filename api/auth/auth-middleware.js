@@ -1,3 +1,4 @@
+const Users = require("../users/users-model");
 /*
   If the user does not have a session saved in the server
 
@@ -23,7 +24,19 @@ function restricted(req, res, next) {
     "message": "Username taken"
   }
 */
-function checkUsernameFree() {}
+async function checkUsernameFree(req, res, next) {
+  const { username } = req.body;
+
+  const response = await Users.findBy("username", username);
+  if (response) {
+    next({
+      status: 422,
+      message: "Username taken",
+    });
+  } else {
+    next();
+  }
+}
 
 /*
   If the username in req.body does NOT exist in the database
@@ -46,3 +59,8 @@ function checkUsernameExists() {}
 function checkPasswordLength() {}
 
 // Don't forget to add these to the `exports` object so they can be required in other modules
+module.exports = {
+  checkUsernameFree,
+  checkUsernameExists,
+  checkPasswordLength,
+};
