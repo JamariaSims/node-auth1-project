@@ -8,7 +8,7 @@ const Users = require("../users/users-model");
   }
 */
 function restricted(req, res, next) {
-  if (!req.session) {
+  if (!req.session.user) {
     res.status(401).json({ message: "You shall not pass!" });
   } else {
     next();
@@ -55,7 +55,16 @@ function checkUsernameExists() {}
     "message": "Password must be longer than 3 chars"
   }
 */
-function checkPasswordLength() {}
+function checkPasswordLength(req, res, next) {
+  if (!req.body || req.body.password <= 3) {
+    next({
+      status: 422,
+      message: "Password must be longer than 3 chars",
+    });
+  } else {
+    next();
+  }
+}
 
 // Don't forget to add these to the `exports` object so they can be required in other modules
 module.exports = {

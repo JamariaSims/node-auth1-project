@@ -19,30 +19,42 @@ Router.post("/login", async (req, res, next) => {
     next();
   }
 });
-Router.post("/register", Auth.checkUsernameFree, async (req, res, next) => {
-  try {
-    const { username, password } = req.body;
-    const hash = bcrypt.hashSync(password, 12);
-    const newUser = { username, password: hash };
-    const user = await User.add(newUser);
-    res.status(201).json(user);
-  } catch (err) {
-    next();
+Router.post(
+  "/register",
+  Auth.checkPasswordLength,
+  Auth.checkUsernameFree,
+  async (req, res, next) => {
+    try {
+      const { username, password } = req.body;
+      const hash = bcrypt.hashSync(password, 12);
+      const newUser = { username, password: hash };
+      const user = await User.add(newUser);
+      res.status(201).json(user);
+    } catch (err) {
+      next();
+    }
   }
-});
+);
 Router.get("/logout", (req, res) => {
   if (req.session.user) {
-    req.session.destroy((err) => {
-      if (err) {
-        res.json({ message: "error you stuck" });
+    req.session.destroy((error) => {
+      if (error) {
+        res.json({
+          message: "err, you cannot leave",
+        });
       } else {
-        res.json({ message: "logged out" });
+        res.json({
+          message: "logged out",
+        });
       }
     });
   } else {
-    res.json({ message: "no session" });
+    res.json({
+      message: "no session",
+    });
   }
 });
+
 module.exports = Router;
 /**
   1 [POST] /api/auth/register { "username": "sue", "password": "1234" }
